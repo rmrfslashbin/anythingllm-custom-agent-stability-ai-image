@@ -1,46 +1,56 @@
-// File: stability-ai-image/__tests__/stability-ai-client.test.js
+// File: __tests__/handler.test.js
 
-import { StabilityAIClient } from '../lib/stability-ai-client.js';
+import { jest, expect, describe, test, beforeEach, afterEach } from '@jest/globals';
+import { runtime } from '../handler.js';
 
-describe('StabilityAIClient', () => {
-  const API_KEY = 'test-api-key';
+describe('Handler', () => {
+  let mockContext;
 
-  test('constructor requires API key', () => {
-    expect(() => new StabilityAIClient()).toThrow('API key is required');
-    expect(() => new StabilityAIClient('')).toThrow('API key is required');
-    expect(() => new StabilityAIClient(API_KEY)).not.toThrow();
+  beforeEach(() => {
+    mockContext = {
+      runtimeArgs: {
+        STABILITY_API_KEY: 'test-key'
+      },
+      introspect: jest.fn(),
+      logger: jest.fn()
+    };
   });
 
-  test('generates correct headers', () => {
-    const client = new StabilityAIClient(API_KEY, {
-      clientId: 'test-client',
-      clientVersion: '1.0.0',
-      organizationId: 'test-org'
-    });
-
-    const headers = client._getCommonHeaders();
-    expect(headers.Authorization).toBe(`Bearer ${API_KEY}`);
-    expect(headers['Stability-Client-ID']).toBe('test-client');
-    expect(headers['Stability-Client-Version']).toBe('1.0.0');
-    expect(headers.Organization).toBe('test-org');
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  test('generates image with minimum parameters', async () => {
-    const client = new StabilityAIClient(API_KEY);
+  test('fails gracefully without API key', async () => {
+    const context = {
+      ...mockContext,
+      runtimeArgs: {}
+    };
 
-    // Mock fetch
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(8))
-      })
-    );
-
-    const result = await client.generateImage({
+    const result = await runtime.handler.call(context, {
       prompt: 'test prompt'
     });
 
-    expect(Buffer.isBuffer(result)).toBe(true);
-    expect(global.fetch).toHaveBeenCalled();
+    const parsed = JSON.parse(result);
+    expect(parsed.success).toBe(false);
+    expect(parsed.error).toContain('STABILITY_API_KEY is required');
+  });
+
+  test('includes all parameters in error metadata', async () => {
+    const testParams = {
+      prompt: 'test prompt',
+      model: 'test-model',
+      negative_prompt: 'test negative',
+      seed: 42
+    };
+
+    const result = await runtime.handler.call(mockContext, testParams);
+    const parsed = JSON.parse(result);
+
+    expect(parsed.metadata).toEqual(expect.objectContaining({
+      prompt: testParams.prompt,
+      model: testParams.model,
+      negative_prompt: testParams.negative_prompt,
+      seed: testParams.seed
+    }));
   });
 });
