@@ -1,37 +1,52 @@
 # Dependencies
 node_modules/
-yarn-error.log
+yarn.lock
+package-lock.json
 
-# Environment variables
+# Environment
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.DIST
 
-# IDE
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.idea/
+# Generated documentation
+docs/api/
+out/
+documentation/
 
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Build artifacts
+dist/
+build/
+artifacts/
+output/
 
-# Test coverage
+# Coverage reports
 coverage/
+.nyc_output/
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
+.settings/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*~
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# outputs
-output/
-artifacts/
+# Test artifacts
+__snapshots__/
+
+# Temporary files
+tmp/
+temp/
+.tmp/

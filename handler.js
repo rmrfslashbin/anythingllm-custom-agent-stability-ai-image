@@ -1,8 +1,39 @@
-// File: stability-ai-image/handler.js
+// File: handler.js
 
 import { StabilityAIClient } from './lib/stability-ai-client.js';
 
+/**
+ * @typedef {Object} RuntimeContext
+ * @property {Object} runtimeArgs - Runtime configuration arguments
+ * @property {string} runtimeArgs.STABILITY_API_KEY - Stability AI API key
+ * @property {Function} introspect - Function for logging internal state
+ * @property {Function} logger - Function for logging errors
+ */
+
+/**
+ * @typedef {Object} GenerationResult
+ * @property {boolean} success - Whether the generation was successful
+ * @property {string} [imageData] - Base64 encoded image data if successful
+ * @property {string} [error] - Error message if generation failed
+ * @property {Object} metadata - Generation metadata
+ * @property {string} metadata.model - Model used for generation
+ * @property {string} metadata.prompt - Input prompt
+ * @property {string} metadata.negative_prompt - Negative prompt used
+ * @property {number} metadata.seed - Seed used for generation
+ * @property {string} metadata.timestamp - Generation timestamp
+ */
+
 export const runtime = {
+  /**
+   * Handles image generation requests.
+   * @param {Object} params - Request parameters
+   * @param {string} params.prompt - Text description of desired image
+   * @param {string} [params.model='sd3-large'] - Model to use
+   * @param {string} [params.negative_prompt=''] - Elements to avoid
+   * @param {number} [params.seed=0] - Generation seed
+   * @this {RuntimeContext}
+   * @returns {Promise<string>} JSON string containing generation results
+   */
   handler: async function ({ prompt, model = 'sd3-large', negative_prompt = '', seed = 0 }) {
     try {
       this.introspect(`Initializing Stability AI client...`);
