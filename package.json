@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Stability AI image generation skill for AnythingLLM",
   "main": "handler.js",
+  "type": "commonjs",
   "author": "Robert Sigler",
   "license": "MIT",
   "engines": {

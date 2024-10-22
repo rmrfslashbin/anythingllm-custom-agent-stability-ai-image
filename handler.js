@@ -1,4 +1,5 @@
 // file: handler.js
+
 /**
  * @module handler
  * @description Main handler module for the Stability AI image generation service
