@@ -1,17 +1,14 @@
-// file: run.js
+// file: stability-ai-image/run.js
 
 require('dotenv').config();
-const fs = require('node:fs/promises');
+const fs = require('fs').promises;
+const path = require('path');
 const { runtime } = require('./handler');
 
 async function ensureOutputDir() {
-    try {
-        await fs.mkdir('output', { recursive: true });
-    } catch (err) {
-        if (err.code !== 'EEXIST') {
-            throw new Error(`Failed to create output directory: ${err.message}`);
-        }
-    }
+    const outputDir = path.join(__dirname, 'output');
+    await fs.mkdir(outputDir, { recursive: true });
+    return outputDir;
 }
 
 async function validateEnvironment() {
@@ -23,23 +20,21 @@ async function validateEnvironment() {
     }
 }
 
-async function saveImage(imageData, timestamp) {
-    const filename = `output/image_${timestamp}.png`;
-    await fs.writeFile(filename, Buffer.from(imageData, 'base64'));
-    return filename;
-}
-
 async function main() {
     try {
         await validateEnvironment();
 
+        const outputDir = await ensureOutputDir();
+        console.log(`\x1b[34mOutput directory: ${outputDir}\x1b[0m`);
+
         const context = {
             config: {
                 name: 'Stability AI Image Generator',
-                version: '1.0.0'
+                version: '1.0.2'
             },
             runtimeArgs: {
-                STABILITY_API_KEY: process.env.STABILITY_API_KEY
+                STABILITY_API_KEY: process.env.STABILITY_API_KEY,
+                IMAGE_SAVE_DIRECTORY: outputDir
             },
             introspect: console.log,
             logger: console.error
@@ -53,8 +48,6 @@ async function main() {
                 seed: 42
             }
         ];
-
-        await ensureOutputDir();
 
         for (const input of testCases) {
             console.log(`\n\x1b[34mTesting with configuration:\x1b[0m`);
@@ -72,10 +65,15 @@ async function main() {
                 console.log('- Model:', parsed.metadata.model);
                 console.log('- Seed Used:', parsed.metadata.seed);
                 console.log('- Timestamp:', parsed.metadata.timestamp);
-                console.log('- Image Data Length:', parsed.imageData?.length || 0);
+                console.log('- Image Saved To:', parsed.filePath);
 
-                const filename = await saveImage(parsed.imageData, Date.now());
-                console.log(`- Saved image to: ${filename}`);
+                // Verify the file exists
+                const fileExists = await fs.access(parsed.filePath).then(() => true).catch(() => false);
+                if (fileExists) {
+                    console.log('\x1b[32mImage file successfully saved and verified.\x1b[0m');
+                } else {
+                    console.log('\x1b[31mWarning: Image file not found at the specified path.\x1b[0m');
+                }
             } else {
                 console.log('\x1b[31mFailed:\x1b[0m', parsed.error);
                 console.log('Error Details:');
@@ -83,6 +81,9 @@ async function main() {
                 console.log('- Attempted Parameters:', parsed.metadata);
             }
         }
+
+        console.log(`\n\x1b[34mImages saved in: ${outputDir}\x1b[0m`);
+
     } catch (error) {
         console.error('\x1b[31mFatal error:\x1b[0m', error.message);
         process.exit(1);
