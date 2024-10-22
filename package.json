@@ -1,0 +1,29 @@
+{
+  "name": "stability-ai-image",
+  "version": "1.0.0",
+  "description": "Stability AI image generation skill for AnythingLLM",
+  "main": "handler.js",
+  "author": "Robert Sigler",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "start": "node run.js",
+    "validate": "yarn lint && yarn test"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "form-data": "^4.0.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.7",
+    "eslint": "^9.13.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3"
+  }
+}

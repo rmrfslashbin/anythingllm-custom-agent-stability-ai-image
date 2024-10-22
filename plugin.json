@@ -1,0 +1,95 @@
+{
+  "active": true,
+  "hubId": "stability-ai-image",
+  "name": "Stability AI Image Generator",
+  "schema": "skill-1.0.0",
+  "version": "1.0.0",
+  "description": "Generate images using Stability AI's API services with SD3",
+  "author": "Robert Sigler",
+  "author_url": "https://github.com/rmrfslashbin",
+  "license": "MIT",
+  "setup_args": {
+    "STABILITY_API_KEY": {
+      "type": "string",
+      "required": true,
+      "input": {
+        "type": "text",
+        "default": "",
+        "placeholder": "sk-...",
+        "hint": "Your Stability AI API key"
+      }
+    }
+  },
+  "examples": [
+    {
+      "prompt": "Generate an image of a sunset over mountains",
+      "call": "{\"prompt\": \"A beautiful sunset over majestic mountains, golden light, dramatic clouds, high quality, detailed\", \"model\": \"sd3-large\", \"seed\": 42, \"negative_prompt\": \"dark, gloomy, stormy, blur, low quality\"}"
+    },
+    {
+      "prompt": "Create a cyberpunk street scene",
+      "call": "{\"prompt\": \"Cyberpunk street scene, neon lights, holographic advertisements, rain-slicked streets, detailed, cinematic lighting\", \"model\": \"sd3-large\", \"negative_prompt\": \"day time, sunny, vintage, historical, black and white\"}"
+    },
+    {
+      "prompt": "Draw a steampunk airship with the same seed as last time",
+      "call": "{\"prompt\": \"Steampunk airship floating through clouds, brass and copper details, steam engines, Victorian aesthetic, highly detailed\", \"model\": \"sd3-large\", \"seed\": 42, \"negative_prompt\": \"modern, futuristic, digital technology\"}"
+    },
+    {
+      "prompt": "Make a cartoon style fox using the medium model",
+      "call": "{\"prompt\": \"Cute cartoon fox, big eyes, fluffy tail, vibrant colors, simple background, kawaii style\", \"model\": \"sd3-medium\", \"negative_prompt\": \"realistic, photographic, scary, aggressive\"}"
+    },
+    {
+      "prompt": "Generate a realistic portrait without artifacts",
+      "call": "{\"prompt\": \"Professional portrait, natural lighting, high quality, sharp details, neutral background\", \"model\": \"sd3-large\", \"negative_prompt\": \"watermarks, text, signature, blurry, distorted features, extra fingers, bad anatomy\"}"
+    },
+    {
+      "prompt": "Create a fantasy landscape with dragons but no castles",
+      "call": "{\"prompt\": \"Epic fantasy landscape, majestic dragons soaring through the sky, mystical forests, crystal formations, magical atmosphere\", \"model\": \"sd3-large\", \"negative_prompt\": \"castles, medieval buildings, man-made structures, urban elements\"}"
+    },
+    {
+      "prompt": "Make a quick concept art using the turbo model",
+      "call": "{\"prompt\": \"Sci-fi vehicle concept art, sleek design, floating hover car, speed lines\", \"model\": \"sd3-large-turbo\", \"negative_prompt\": \"detailed background, complex scenes, multiple vehicles\"}"
+    },
+    {
+      "prompt": "Generate a consistent character design with seed",
+      "call": "{\"prompt\": \"Character design of a young wizard, magical robes, holding a staff, detailed costume, fantasy style\", \"model\": \"sd3-large\", \"seed\": 12345, \"negative_prompt\": \"modern clothing, technology, urban background\"}"
+    },
+    {
+      "prompt": "Create food photography without any text",
+      "call": "{\"prompt\": \"Professional food photography, gourmet pasta dish, steam rising, fresh ingredients, shallow depth of field, studio lighting\", \"model\": \"sd3-large\", \"negative_prompt\": \"text, watermarks, labels, menu, hands, people, utensils\"}"
+    },
+    {
+      "prompt": "Generate architectural visualization without people",
+      "call": "{\"prompt\": \"Modern architectural visualization, minimalist house design, floor-to-ceiling windows, natural materials, dramatic lighting\", \"model\": \"sd3-large\", \"negative_prompt\": \"people, vehicles, animals, clutter, urban environment, neighboring buildings\"}"
+    },
+    {
+      "prompt": "Draw a product render with specific seed",
+      "call": "{\"prompt\": \"Minimal product photography of a smartwatch, floating in white space, studio lighting, high-end commercial look\", \"model\": \"sd3-large\", \"seed\": 98765, \"negative_prompt\": \"hands, arms, people, background elements, text, logos\"}"
+    },
+    {
+      "prompt": "Make abstract art without recognizable objects",
+      "call": "{\"prompt\": \"Abstract art, flowing colors, geometric patterns, dynamic composition, vibrant energy\", \"model\": \"sd3-large\", \"negative_prompt\": \"recognizable objects, faces, figures, symbols, text\"}"
+    }
+  ],
+  "entrypoint": {
+    "file": "handler.js",
+    "params": {
+      "prompt": {
+        "description": "Text description of the image to generate",
+        "type": "string"
+      },
+      "model": {
+        "description": "Stability AI model to use (sd3-medium, sd3-large, sd3-large-turbo)",
+        "type": "string"
+      },
+      "negative_prompt": {
+        "description": "Keywords describing what you do NOT want in the generated image",
+        "type": "string"
+      },
+      "seed": {
+        "description": "Randomness seed for reproducible results (0-4294967295)",
+        "type": "number"
+      }
+    }
+  },
+  "imported": true
+}
