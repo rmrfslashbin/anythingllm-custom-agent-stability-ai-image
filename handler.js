@@ -1,8 +1,8 @@
 // File: stability-ai-image/handler.js
 
-const StabilityAIClient = require('./lib/stability-ai-client');
+import { StabilityAIClient } from './lib/stability-ai-client.js';
 
-module.exports.runtime = {
+export const runtime = {
   handler: async function ({ prompt, model = 'sd3-large', negative_prompt = '', seed = 0 }) {
     try {
       this.introspect(`Initializing Stability AI client...`);

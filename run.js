@@ -1,7 +1,8 @@
 // File: stability-ai-image/run.js
 
-require('dotenv').config();
-const handler = require('./handler');
+import 'dotenv/config';
+import { runtime } from './handler.js';
+import fs from 'node:fs/promises';
 
 async function main() {
     // Validate environment
@@ -27,24 +28,19 @@ async function main() {
 
     const testCases = [
         {
-            prompt: "A beautiful sunset over mountains",
+            prompt: "A beautiful sunset over mountains, photorealistic, high quality",
             model: "sd3-large",
-            negative_prompt: "dark, stormy, gloomy",
+            negative_prompt: "dark, stormy, gloomy, low quality, blurry",
             seed: 42
-        },
-        {
-            prompt: "Futuristic city with flying cars",
-            model: "sd3-large",
-            negative_prompt: "pollution, destruction, ruins, dystopian",
-            seed: 12345
-        },
-        {
-            prompt: "A serene zen garden",
-            model: "sd3-large",
-            negative_prompt: "people, buildings, modern objects",
-            seed: 67890
         }
     ];
+
+    // Create output directory if it doesn't exist
+    try {
+        await fs.mkdir('output', { recursive: true });
+    } catch (err) {
+        if (err.code !== 'EEXIST') throw err;
+    }
 
     for (const input of testCases) {
         console.log(`\n\x1b[34mTesting with configuration:\x1b[0m`);
@@ -54,7 +50,7 @@ async function main() {
         console.log(`- Seed: ${input.seed}`);
 
         try {
-            const result = await handler.runtime.handler.call(context, input);
+            const result = await runtime.handler.call(context, input);
             const parsed = JSON.parse(result);
             if (parsed.success) {
                 console.log('\x1b[32mSuccess!\x1b[0m');
@@ -63,6 +59,12 @@ async function main() {
                 console.log('- Seed Used:', parsed.metadata.seed);
                 console.log('- Timestamp:', parsed.metadata.timestamp);
                 console.log('- Image Data Length:', parsed.imageData?.length || 0);
+
+                // Save the image
+                const imageBuffer = Buffer.from(parsed.imageData, 'base64');
+                const filename = `output/image_${Date.now()}.png`;
+                await fs.writeFile(filename, imageBuffer);
+                console.log(`- Saved image to: ${filename}`);
             } else {
                 console.log('\x1b[31mFailed:\x1b[0m', parsed.error);
                 console.log('Error Details:');
@@ -75,7 +77,7 @@ async function main() {
     }
 }
 
-if (require.main === module) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
     main().catch(error => {
         console.error('\x1b[31mFatal error:\x1b[0m', error);
         process.exit(1);
