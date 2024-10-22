@@ -8,33 +8,37 @@ package-lock.json
 .env.*
 !.env.DIST
 
-# Generated documentation
-docs/api/
+# Documentation
+docs/
 out/
-documentation/
+jsdoc/
 
 # Build artifacts
 dist/
 build/
-artifacts/
-output/
-
-# Coverage reports
 coverage/
 .nyc_output/
 
-# IDE files
-.idea/
-.vscode/
-*.sublime-*
-.settings/
-*.code-workspace
+# Testing
+artifacts/
+output/
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# IDE/Editor
+.idea/
+.vscode/
 *.swp
-*~
+*.swo
+*.sublime-workspace
+*.sublime-project
 
 # Logs
 logs/
@@ -43,10 +47,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Test artifacts
-__snapshots__/
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
 
 # Temporary files
-tmp/
-temp/
 .tmp/
+.temp/

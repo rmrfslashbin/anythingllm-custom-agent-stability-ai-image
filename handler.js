@@ -1,4 +1,7 @@
-// File: handler.js
+/**
+ * @module handler
+ * @description Main handler module for the Stability AI image generation service
+ */
 
 import { StabilityAIClient } from './lib/stability-ai-client.js';
 
@@ -23,9 +26,11 @@ import { StabilityAIClient } from './lib/stability-ai-client.js';
  * @property {string} metadata.timestamp - Generation timestamp
  */
 
-export const runtime = {
+/** @type {Object} */
+const runtime = {
   /**
    * Handles image generation requests.
+   * @async
    * @param {Object} params - Request parameters
    * @param {string} params.prompt - Text description of desired image
    * @param {string} [params.model='sd3-large'] - Model to use
@@ -33,6 +38,7 @@ export const runtime = {
    * @param {number} [params.seed=0] - Generation seed
    * @this {RuntimeContext}
    * @returns {Promise<string>} JSON string containing generation results
+   * @throws {Error} If STABILITY_API_KEY is not provided or if image generation fails
    */
   handler: async function ({ prompt, model = 'sd3-large', negative_prompt = '', seed = 0 }) {
     try {
@@ -69,7 +75,7 @@ export const runtime = {
       // Convert buffer to base64 for return
       const base64Image = imageBuffer.toString('base64');
 
-      this.introspect(`Image generated successfully! 
+      this.introspect(`Image generated successfully!
 Parameters used:
 - Model: ${model}
 - Seed: ${numericSeed}`);
@@ -104,3 +110,5 @@ Parameters used:
     }
   }
 };
+
+export { runtime };

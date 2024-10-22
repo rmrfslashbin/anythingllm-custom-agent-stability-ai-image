@@ -1,8 +1,6 @@
-// File: stability-ai-image/run.js
-
 import 'dotenv/config';
-import { runtime } from './handler.js';
 import fs from 'node:fs/promises';
+import { runtime } from './handler.js';
 
 async function main() {
     // Validate environment
@@ -77,9 +75,11 @@ async function main() {
     }
 }
 
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+if (import.meta.url === new URL(import.meta.url).href) {
     main().catch(error => {
         console.error('\x1b[31mFatal error:\x1b[0m', error);
         process.exit(1);
     });
 }
+
+export { main };
