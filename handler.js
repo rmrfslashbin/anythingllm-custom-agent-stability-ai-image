@@ -1,9 +1,10 @@
+// file: handler.js
 /**
  * @module handler
  * @description Main handler module for the Stability AI image generation service
  */
 
-import { StabilityAIClient } from './lib/stability-ai-client.js';
+const { StabilityAIClient } = require('./lib/stability-ai-client');
 
 /**
  * @typedef {Object} RuntimeContext
@@ -111,4 +112,4 @@ Parameters used:
   }
 };
 
-export { runtime };
+module.exports = { runtime };

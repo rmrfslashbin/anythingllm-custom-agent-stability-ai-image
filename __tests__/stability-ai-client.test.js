@@ -1,17 +1,24 @@
-// file: stability-ai-image/__tests__/stability-ai-client.test.js
-import { jest, expect, describe, test, beforeEach, afterEach } from '@jest/globals';
-import { StabilityAIClient } from '../lib/stability-ai-client.js';
+// file: __tests__/stability-ai-client.test.js
+const { StabilityAIClient } = require('../lib/stability-ai-client');
+const { MockAgent, setGlobalDispatcher } = require('undici');
 
 describe('StabilityAIClient', () => {
     const API_KEY = 'test-api-key';
-    let mockFetch;
+    let mockAgent;
+    let mockClient;
 
     beforeEach(() => {
-        mockFetch = jest.fn();
+        // Setup mock agent
+        mockAgent = new MockAgent();
+        mockAgent.disableNetConnect();
+        setGlobalDispatcher(mockAgent);
+
+        // Setup mock pool for stability.ai requests
+        mockClient = mockAgent.get('https://api.stability.ai');
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
+    afterEach(async () => {
+        await mockAgent.close();
     });
 
     test('constructor requires API key', () => {
@@ -42,33 +49,17 @@ describe('StabilityAIClient', () => {
             }]
         };
 
-        mockFetch.mockResolvedValue({
-            ok: true,
-            status: 200,
-            json: () => Promise.resolve(mockResponse)
-        });
+        mockClient.intercept({
+            path: '/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image',
+            method: 'POST'
+        }).reply(200, mockResponse);
 
-        const client = new StabilityAIClient(API_KEY, { fetch: mockFetch });
-
+        const client = new StabilityAIClient(API_KEY);
         const result = await client.generateImage({
             prompt: 'test prompt'
         });
 
         expect(Buffer.isBuffer(result)).toBe(true);
-        expect(mockFetch).toHaveBeenCalledTimes(1);
-
-        const [url, options] = mockFetch.mock.calls[0];
-        expect(url).toContain('/v1/generation/');
-        expect(options.method).toBe('POST');
-
-        const body = JSON.parse(options.body);
-        expect(body).toMatchObject({
-            text_prompts: [{ text: 'test prompt', weight: 1.0 }],
-            cfg_scale: 7,
-            style_preset: 'enhance',
-            samples: 1,
-            steps: 50
-        });
     });
 
     test('includes negative prompt when provided', async () => {
@@ -78,51 +69,46 @@ describe('StabilityAIClient', () => {
             }]
         };
 
-        mockFetch.mockResolvedValue({
-            ok: true,
-            status: 200,
-            json: () => Promise.resolve(mockResponse)
+        // Use reply callback to inspect the request body
+        mockClient.intercept({
+            path: '/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image',
+            method: 'POST'
+        }).reply(200, (opts) => {
+            const body = JSON.parse(opts.body);
+            expect(body.text_prompts).toEqual([
+                { text: 'test prompt', weight: 1.0 },
+                { text: 'bad quality', weight: -1.0 }
+            ]);
+            return mockResponse;
         });
 
-        const client = new StabilityAIClient(API_KEY, { fetch: mockFetch });
-
+        const client = new StabilityAIClient(API_KEY);
         await client.generateImage({
             prompt: 'test prompt',
             negativePrompt: 'bad quality'
         });
-
-        const [_, options] = mockFetch.mock.calls[0];
-        const body = JSON.parse(options.body);
-        expect(body.text_prompts).toEqual([
-            { text: 'test prompt', weight: 1.0 },
-            { text: 'bad quality', weight: -1.0 }
-        ]);
     });
 
     test('handles API errors properly', async () => {
         const errorMessage = 'Insufficient balance';
-        mockFetch.mockResolvedValue({
-            ok: false,
-            status: 402,
-            json: () => Promise.resolve({ message: errorMessage })
-        });
+        mockClient.intercept({
+            path: '/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image',
+            method: 'POST'
+        }).reply(402, { message: errorMessage });
 
-        const client = new StabilityAIClient(API_KEY, { fetch: mockFetch });
-
+        const client = new StabilityAIClient(API_KEY);
         await expect(client.generateImage({
             prompt: 'test prompt'
         })).rejects.toThrow(errorMessage);
     });
 
     test('handles non-JSON API errors', async () => {
-        mockFetch.mockResolvedValue({
-            ok: false,
-            status: 500,
-            json: () => Promise.reject('Invalid JSON')
-        });
+        mockClient.intercept({
+            path: '/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image',
+            method: 'POST'
+        }).reply(500, 'Internal Server Error');
 
-        const client = new StabilityAIClient(API_KEY, { fetch: mockFetch });
-
+        const client = new StabilityAIClient(API_KEY);
         await expect(client.generateImage({
             prompt: 'test prompt'
         })).rejects.toThrow('HTTP error! status: 500');

@@ -1,6 +1,8 @@
-import 'dotenv/config';
-import fs from 'node:fs/promises';
-import { runtime } from './handler.js';
+// file: run.js
+
+require('dotenv').config();
+const fs = require('node:fs/promises');
+const { runtime } = require('./handler');
 
 async function main() {
     // Validate environment
@@ -75,11 +77,11 @@ async function main() {
     }
 }
 
-if (import.meta.url === new URL(import.meta.url).href) {
+if (require.main === module) {
     main().catch(error => {
         console.error('\x1b[31mFatal error:\x1b[0m', error);
         process.exit(1);
     });
 }
 
-export { main };
+module.exports = { main };
