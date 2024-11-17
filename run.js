@@ -48,10 +48,10 @@ async function main() {
                 seed: 42
             },
             {
-                prompt: "A beautiful sunset over mountains, photorealistic, high quality",
+                prompt: "A futuristic cityscape with flying cars",
                 model: "sd3.5-large-turbo",
-                negative_prompt: "dark, stormy, gloomy, low quality, blurry",
-                seed: 42
+                negative_prompt: "old, vintage, retro",
+                seed: 123456
             }
         ];
 
@@ -68,27 +68,31 @@ async function main() {
             if (parsed.success) {
                 console.log('\x1b[32mSuccess!\x1b[0m');
                 console.log('Generation Details:');
-                console.log('- Model:', parsed.metadata.model);
-                console.log('- Seed Used:', parsed.metadata.seed);
-                console.log('- Timestamp:', parsed.metadata.timestamp);
-                console.log('- Image Saved To:', parsed.filePath);
+                console.log('- Model:', parsed.metadata.request.model);
+                console.log('- Input Seed:', parsed.metadata.request.seed);
+                console.log('- Used Seed:', parsed.metadata.output.seed);
+                console.log('- Finish Reason:', parsed.metadata.output.finishReason);
+                console.log('- Image Saved To:', parsed.metadata.output.savedTo);
+                console.log('- Metadata Saved To:', parsed.metadataFilePath);
 
-                // Verify the file exists
-                const fileExists = await fs.access(parsed.filePath).then(() => true).catch(() => false);
-                if (fileExists) {
-                    console.log('\x1b[32mImage file successfully saved and verified.\x1b[0m');
+                // Verify the files exist
+                const imageExists = await fs.access(parsed.metadata.output.savedTo).then(() => true).catch(() => false);
+                const metadataExists = await fs.access(parsed.metadataFilePath).then(() => true).catch(() => false);
+
+                if (imageExists && metadataExists) {
+                    console.log('\x1b[32mImage and metadata files successfully saved and verified.\x1b[0m');
                 } else {
-                    console.log('\x1b[31mWarning: Image file not found at the specified path.\x1b[0m');
+                    console.log('\x1b[31mWarning: One or more files not found at the specified paths.\x1b[0m');
                 }
             } else {
                 console.log('\x1b[31mFailed:\x1b[0m', parsed.error);
                 console.log('Error Details:');
-                console.log('- Timestamp:', parsed.metadata.timestamp);
-                console.log('- Attempted Parameters:', parsed.metadata);
+                console.log('- Request:', parsed.metadata.request);
+                console.log('- Output:', parsed.metadata.output);
             }
         }
 
-        console.log(`\n\x1b[34mImages saved in: ${outputDir}\x1b[0m`);
+        console.log(`\n\x1b[34mImages and metadata saved in: ${outputDir}\x1b[0m`);
 
     } catch (error) {
         console.error('\x1b[31mFatal error:\x1b[0m', error.message);

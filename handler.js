@@ -4,6 +4,12 @@ const fs = require('fs').promises;
 const path = require('path');
 const { StabilityAIClient } = require('./lib/stability-ai-client');
 
+async function saveMetadata(filePath, metadata) {
+  const jsonFilePath = filePath.replace('.png', '.json');
+  await fs.writeFile(jsonFilePath, JSON.stringify(metadata, null, 2));
+  return jsonFilePath;
+}
+
 const runtime = {
   handler: async function ({ prompt, model = 'sd3-large', negative_prompt = '', seed = 0 }) {
     try {
@@ -35,7 +41,7 @@ const runtime = {
 - Seed: ${numericSeed}
 `);
 
-      const imageBuffer = await client.generateImage({
+      const { imageBuffer, seed: usedSeed, finishReason } = await client.generateImage({
         prompt,
         model,
         negativePrompt: negative_prompt,
@@ -51,38 +57,61 @@ const runtime = {
       // Save the image to the filesystem
       await fs.writeFile(filePath, imageBuffer);
 
-      this.introspect(`Image generated and saved successfully!
+      // Prepare metadata
+      const metadata = {
+        request: {
+          prompt,
+          model,
+          negativePrompt: negative_prompt,
+          seed: numericSeed
+        },
+        output: {
+          seed: usedSeed,
+          finishReason,
+          savedTo: filePath
+        }
+      };
+
+      // Save metadata
+      const metadataFilePath = await saveMetadata(filePath, metadata);
+
+      this.introspect(`Image and metadata generated and saved successfully!
 Parameters used:
 - Model: ${model}
-- Seed: ${numericSeed}
-- Saved to: ${filePath}`);
+- Seed: ${usedSeed}
+- Finish Reason: ${finishReason}
+- Image saved to: ${filePath}
+- Metadata saved to: ${metadataFilePath}`);
 
       return JSON.stringify({
         success: true,
         filePath,
-        metadata: {
-          model,
-          prompt,
-          negative_prompt,
-          seed: numericSeed,
-          timestamp: new Date().toISOString()
-        }
+        metadataFilePath,
+        metadata
       });
 
     } catch (error) {
       this.logger(`Error in Stability AI handler: ${error.message}`);
       this.introspect(`Failed to generate or save image: ${error.message}`);
 
+      const errorMetadata = {
+        request: {
+          prompt,
+          model,
+          negativePrompt: negative_prompt,
+          seed
+        },
+        output: {
+          seed: Number(seed),
+          finishReason: "error",
+          savedTo: null
+        }
+      };
+
       return JSON.stringify({
         success: false,
         error: error.message,
-        metadata: {
-          model,
-          prompt,
-          negative_prompt,
-          seed,
-          timestamp: new Date().toISOString()
-        }
+        metadata: errorMetadata
       });
     }
   }
