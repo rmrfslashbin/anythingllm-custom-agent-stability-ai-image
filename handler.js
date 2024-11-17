@@ -49,6 +49,12 @@ const runtime = {
         outputFormat: 'png'
       });
 
+      if (!imageBuffer) {
+        throw new Error(`Failed to generate image. Finish reason: ${finishReason}`);
+      }
+      
+      console.log(`Image generated. Buffer length: ${imageBuffer.length}, Seed: ${usedSeed}, Finish Reason: ${finishReason}`);
+
       // Generate RFC3339 timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `image_${timestamp}.png`;
