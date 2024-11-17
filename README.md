@@ -7,7 +7,7 @@ A custom agent skill for AnythingLLM that provides access to Stability AI's imag
 ## Features
 
 - Text-to-image generation using Stability AI's API
-- Support for multiple SD models (defaults to SD3)
+- Support for multiple SD models (defaults to sd3.5-large-turbo)
 - Comprehensive error handling and user feedback
 - Extensible architecture for future capabilities
 

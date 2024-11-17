@@ -3,7 +3,7 @@
   "hubId": "stability-ai-image",
   "name": "Stability AI Image Generator",
   "schema": "skill-1.0.0",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Generate images using Stability AI's API services with SD3 and save them to the filesystem",
   "author": "Robert Sigler",
   "author_url": "https://github.com/rmrfslashbin",
@@ -78,6 +78,46 @@
     {
       "prompt": "Make abstract art without recognizable objects",
       "call": "{\"prompt\": \"Abstract art, flowing colors, geometric patterns, dynamic composition, vibrant energy\", \"model\": \"sd3-large\", \"negative_prompt\": \"recognizable objects, faces, figures, symbols, text\"}"
+    },
+    {
+      "prompt": "Generate a photorealistic mountain landscape at sunset",
+      "call": "{\"prompt\": \"Majestic mountain range at sunset, golden light, dramatic clouds, photorealistic style, high detail\", \"model\": \"sd3.5-large\", \"seed\": 42, \"negative_prompt\": \"cartoon, low quality, blurry, dark\"}"
+    },
+    {
+      "prompt": "Create a futuristic cityscape with flying cars",
+      "call": "{\"prompt\": \"Futuristic cityscape at night, neon lights, holographic billboards, flying cars, cyberpunk style\", \"model\": \"sd3.5-large\", \"negative_prompt\": \"historical, rural, daytime\"}"
+    },
+    {
+      "prompt": "Generate an underwater scene with coral and tropical fish",
+      "call": "{\"prompt\": \"Vibrant coral reef, colorful tropical fish, clear blue water, sunbeams penetrating the surface\", \"model\": \"sd3.5-medium\", \"seed\": 123, \"negative_prompt\": \"boats, humans, above water\"}"
+    },
+    {
+      "prompt": "Create a portrait of a fantasy character",
+      "call": "{\"prompt\": \"Portrait of an elven warrior, intricate armor, flowing silver hair, ethereal glow, fantasy art style\", \"model\": \"sd3.5-large\", \"negative_prompt\": \"modern clothing, urban background\"}"
+    },
+    {
+      "prompt": "Generate a still life painting in the style of Dutch masters",
+      "call": "{\"prompt\": \"Still life with fruits, flowers, and a ornate vase, chiaroscuro lighting, rich colors, Dutch Golden Age painting style\", \"model\": \"sd3.5-large\", \"seed\": 789, \"negative_prompt\": \"modern, abstract, bright lighting\"}"
+    },
+    {
+      "prompt": "Create a quick concept art of a sci-fi vehicle",
+      "call": "{\"prompt\": \"Sleek futuristic hover bike, streamlined design, glowing energy lines, speed blur background\", \"model\": \"sd3.5-large-turbo\", \"negative_prompt\": \"old-fashioned, bulky, stationary\"}"
+    },
+    {
+      "prompt": "Generate an abstract representation of the four seasons",
+      "call": "{\"prompt\": \"Abstract quadriptych representing spring, summer, autumn, and winter, vibrant colors, flowing shapes\", \"model\": \"sd3.5-medium\", \"seed\": 456, \"negative_prompt\": \"realistic, photographic, specific objects\"}"
+    },
+    {
+      "prompt": "Create a detailed macro photograph of an insect",
+      "call": "{\"prompt\": \"Extreme close-up of a colorful butterfly wing, intricate scales, dewdrops, soft background bokeh\", \"model\": \"sd3.5-large\", \"negative_prompt\": \"full body, wide angle, human elements\"}"
+    },
+    {
+      "prompt": "Generate a surreal dreamscape",
+      "call": "{\"prompt\": \"Surreal landscape with floating islands, upside-down waterfalls, giant clock gears in the sky, Salvador Dali inspired\", \"model\": \"sd3.5-large\", \"seed\": 101, \"negative_prompt\": \"realistic, ordinary, logical physics\"}"
+    },
+    {
+      "prompt": "Create a vintage travel poster",
+      "call": "{\"prompt\": \"Vintage style travel poster of Paris, Eiffel Tower, bold colors, art deco design, 1920s aesthetic\", \"model\": \"sd3.5-medium\", \"negative_prompt\": \"modern, photorealistic, black and white\"}"
     }
   ],
   "entrypoint": {
@@ -88,7 +128,7 @@
         "type": "string"
       },
       "model": {
-        "description": "Stability AI model to use (sd3-medium, sd3-large, sd3-large-turbo)",
+        "description": "Stability AI model to use (sd3.5-large, sd3.5-large-turbo, sd3.5-medium, sd3-medium, sd3-large, sd3-large-turbo)",
         "type": "string"
       },
       "negative_prompt": {

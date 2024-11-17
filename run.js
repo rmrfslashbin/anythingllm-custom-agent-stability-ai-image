@@ -46,6 +46,12 @@ async function main() {
                 model: "sd3-large",
                 negative_prompt: "dark, stormy, gloomy, low quality, blurry",
                 seed: 42
+            },
+            {
+                prompt: "A beautiful sunset over mountains, photorealistic, high quality",
+                model: "sd3.5-large-turbo",
+                negative_prompt: "dark, stormy, gloomy, low quality, blurry",
+                seed: 42
             }
         ];
 
