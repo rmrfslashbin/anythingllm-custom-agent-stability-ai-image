@@ -55,17 +55,31 @@ const runtime = {
                 generateOptions.cfgScale = cfg_scale;
             }
 
+            this.introspect(`Sending request to Stability AI API with options: ${JSON.stringify(generateOptions)}`);
+
             result = await client.generateImage(generateOptions);
 
+            if (!result || !result.imageData) {
+                throw new Error('No image data received from the API');
+            }
+
+            this.introspect(`Received image data of length: ${result.imageData.length}`);
+
             const imageBuffer = Buffer.from(result.imageData, 'base64');
+            
+            if (imageBuffer.length === 0) {
+                throw new Error('Decoded image buffer is empty');
+            }
+
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const filename = `image_${timestamp}.png`;
             filePath = path.join(imageSaveDirectory, filename);
 
             await fs.writeFile(filePath, imageBuffer);
-            const base64Hash = crypto.createHash('sha256').update(result.imageData).digest('hex');
             
+            const base64Hash = crypto.createHash('sha256').update(result.imageData).digest('hex');
             const fileHash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
+
             metadata = {
                 request: {
                     prompt,
@@ -88,7 +102,7 @@ const runtime = {
             metadataFilePath = await saveMetadata(filePath, metadata);
 
             this.introspect(`Image and metadata generated and saved successfully!
-              Parameters used:
+Parameters used:
 - Model: ${model}
 - Seed: ${result.seed}
 - Finish Reason: ${result.finishReason}
@@ -96,7 +110,6 @@ const runtime = {
 - Metadata saved to: ${metadataFilePath}
 - Base64 SHA-256: ${base64Hash}
 - File SHA-256: ${fileHash}`);
-              
 
             return JSON.stringify({
                 success: true,
@@ -108,6 +121,12 @@ const runtime = {
         } catch (error) {
             this.logger(`Error in Stability AI handler: ${error.message}`);
             this.introspect(`Failed to generate or save image: ${error.message}`);
+            
+            if (result) {
+                this.introspect(`Result object: ${JSON.stringify(result, null, 2)}`);
+            } else {
+                this.introspect('Result object is null or undefined');
+            }
 
             const errorMetadata = {
                 request: {
@@ -131,13 +150,6 @@ const runtime = {
                 error: error.message,
                 metadata: errorMetadata
             });
-
-        } finally {
-            // Clean up and reset variables
-            result = null;
-            metadata = null;
-            filePath = null;
-            metadataFilePath = null;
         }
     }
 };
