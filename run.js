@@ -5,6 +5,13 @@ const fs = require('fs').promises;
 const path = require('path');
 const { runtime } = require('./handler');
 
+function truncateBase64(data, length = 20) {
+    if (typeof data === 'string' && data.length > length) {
+        return data.substr(0, length) + '...';
+    }
+    return data;
+}
+
 async function ensureOutputDir() {
     const outputDir = path.join(__dirname, 'output');
     await fs.mkdir(outputDir, { recursive: true });
@@ -42,16 +49,16 @@ async function main() {
 
         const testCases = [
             {
-                prompt: "A beautiful sunset over mountains, photorealistic, high quality",
-                model: "sd3-large",
-                negative_prompt: "dark, stormy, gloomy, low quality, blurry",
-                seed: 42
+                prompt: "An octopus in a forest, photorealistic, high quality",
+                model: "sd3.5-large",
+                negative_prompt: "old, vintage, retro",
+                seed: 0 //42
             },
             {
-                prompt: "A futuristic cityscape with flying cars",
+                prompt: "A cartoonish octopus in a forest",
                 model: "sd3.5-large-turbo",
                 negative_prompt: "old, vintage, retro",
-                seed: 123456
+                seed: 0 //123456
             }
         ];
 
@@ -64,6 +71,11 @@ async function main() {
 
             const result = await runtime.handler.call(context, input);
             const parsed = JSON.parse(result);
+
+            // Truncate base64 data in the parsed result
+            if (parsed.metadata && parsed.metadata.output && parsed.metadata.output.base64) {
+                parsed.metadata.output.base64 = truncateBase64(parsed.metadata.output.base64);
+            }
 
             if (parsed.success) {
                 console.log('\x1b[32mSuccess!\x1b[0m');
@@ -81,6 +93,9 @@ async function main() {
 
                 if (imageExists && metadataExists) {
                     console.log('\x1b[32mImage and metadata files successfully saved and verified.\x1b[0m');
+                // Check image file content
+                const imageContent = await fs.readFile(parsed.metadata.output.savedTo);
+                console.log('Saved image file starts with:', imageContent.toString('hex').substr(0, 20));
                 } else {
                     console.log('\x1b[31mWarning: One or more files not found at the specified paths.\x1b[0m');
                 }
