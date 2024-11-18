@@ -3,7 +3,7 @@
   "hubId": "stability-ai-image",
   "name": "Stability AI Image Generator",
   "schema": "skill-1.0.0",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Generate images using Stability AI's API services with SD3 and save them to the filesystem",
   "author": "Robert Sigler",
   "author_url": "https://github.com/rmrfslashbin",
