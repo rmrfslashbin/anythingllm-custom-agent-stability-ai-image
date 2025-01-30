@@ -56,3 +56,6 @@ pids/
 # Temporary files
 .tmp/
 .temp/
+
+# Project specific files
+generated/
